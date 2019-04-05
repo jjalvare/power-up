@@ -42,7 +42,7 @@ from software_hosts import get_ansible_inventory, validate_software_inventory
 from lib.utilities import sub_proc_display, sub_proc_exec, heading1, Color, \
     get_selection, get_yesno, rlinput, bold, ansible_pprint, replace_regex, \
     parse_rpm_filenames, lscpu
-from lib.genesis import GEN_SOFTWARE_PATH, get_ansible_playbook_path
+from lib.genesis import GEN_SOFTWARE_PATH, get_ansible_playbook_path, is_container
 from nginx_setup import nginx_setup
 
 
@@ -331,7 +331,7 @@ class software(object):
                 continue
 
             # Firewall status
-            if item == 'Firewall':
+            if item == 'Firewall' and not is_container():
                 cmd = 'firewall-cmd --list-all'
                 resp, _, _ = sub_proc_exec(cmd)
                 if re.search(r'services:\s+.+http', resp):
@@ -1302,8 +1302,10 @@ class software(object):
                 self.log.error('An error occurred while cleaning the yum repositories\n'
                                'POWER-Up is unable to continue.')
                 sys.exit('Exiting')
-        self._setup_firewall()
-        self._setup_nginx_server()
+        if not is_container():  
+            self._setup_firewall()
+        if not is_container():  
+            self._setup_nginx_server()
 
     def prep(self, eval_ver=False, non_int=False):
 

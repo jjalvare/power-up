@@ -20,7 +20,12 @@ from __future__ import nested_scopes, generators, division, absolute_import, \
 
 import click
 import os.path
-from os import listdir, getlogin, getuid
+from os import listdir, getuid
+if not os.environ.get("IS_DOCKER_APP", False):
+    from os import getlogin
+else:
+    getlogin = lambda: "root"
+
 import filecmp
 import json
 import pwd
@@ -236,7 +241,7 @@ def _set_software_hosts_owner_mode(software_hosts_file_path):
         software_hosts_file_path (str): Path to software inventory file
     """
     user_name = getlogin()
-    if getuid() == 0 and user_name != 'root':
+    if getuid() == 0 and ( user_name != 'root' or os.environ.get("IS_DOCKER_APP", False)):
         user_uid = pwd.getpwnam(user_name).pw_uid
         user_gid = grp.getgrnam(user_name).gr_gid
         os.chown(software_hosts_file_path, user_uid, user_gid)
@@ -337,7 +342,8 @@ def _check_known_hosts(host_list):
     """
     known_hosts_files = [os.path.join(Path.home(), ".ssh", "known_hosts")]
     user_name, user_home_dir = get_user_and_home()
-    if os.environ['USER'] == 'root' and user_name != 'root':
+    os.environ['USER'] = 'root' if os.environ.get("IS_DOCKER_APP", False) else os.environ['USER']
+    if ( os.environ['USER'] == 'root' and user_name != 'root') or (os.environ.get("IS_DOCKER_APP", False)):
         known_hosts_files.append('/root/.ssh/known_hosts')
         if not os.path.isdir('/root/.ssh'):
             os.mkdir('/root/.ssh')

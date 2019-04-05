@@ -23,8 +23,12 @@ import yaml
 
 PROJECT_NAME = "power-up"
 HOME = os.path.expanduser('~')
-GEN_PATH = (os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../../")) + "/")
+if not os.environ.get('DOCKER_APP_PATH', False):
+    GEN_PATH = (os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../../")) + "/")
+else:
+    GEN_PATH = os.environ.get('DOCKER_APP_PATH', False) 
+
 GEN_SCRIPTS_PATH = os.path.join(GEN_PATH, 'scripts', '')
 GEN_SCRIPTS_PYTHON_PATH = os.path.join(GEN_SCRIPTS_PATH, 'python', '')
 GEN_PLAY_PATH = os.path.join(GEN_PATH, 'playbooks', '')
@@ -34,7 +38,10 @@ GEN_SOFTWARE_PATH = os.path.join(GEN_PATH, 'software', '')
 GEN_SAMPLE_CONFIGS_PATH = os.path.join(GEN_PATH, 'sample-configs', '')
 OPSYS = platform.dist()[0]
 DEFAULT_CONTAINER_NAME = PROJECT_NAME
-CONTAINER_PACKAGE_PATH = '/opt/' + PROJECT_NAME
+if not os.environ.get('DOCKER_APP_PATH', False):
+    CONTAINER_PACKAGE_PATH = '/opt/' + PROJECT_NAME 
+else:
+    CONTAINER_PACKAGE_PATH = os.environ.get('DOCKER_APP_PATH', False) 
 CONTAINER_ID_FILE = 'container'
 VENV_DIR = 'pup-venv'
 DEPLOYER_VENV_DIR = 'pup-venv'
@@ -144,9 +151,7 @@ def get_container_name(config_path=None):
 
 
 def is_container():
-    return os.path.isfile(os.path.join(
-        CONTAINER_PACKAGE_PATH, CONTAINER_ID_FILE))
-
+    return os.environ.get('IS_DOCKER_APP', False); 
 
 def get_logs_path():
     return GEN_LOGS_PATH
@@ -211,15 +216,18 @@ def get_python_path():
 
 
 def get_ansible_path():
-    return os.path.join(get_venv_path(), 'bin', ANSIBLE)
+    path = get_venv_path() if not os.environ.get("DOCKER_VENV", False) else os.environ.get("DOCKER_VENV", False) 
+    return os.path.join(path, 'bin', ANSIBLE)
 
 
 def get_ansible_playbook_path():
-    return os.path.join(get_venv_path(), 'bin', ANSIBLE_PLAYBOOK)
+    path = get_venv_path() if not os.environ.get("DOCKER_VENV", False) else os.environ.get("DOCKER_VENV", False) 
+    return os.path.join(path, 'bin', ANSIBLE_PLAYBOOK)
 
 
 def get_ansible_vault_path():
-    return os.path.join(get_venv_path(), 'bin', ANSIBLE_VAULT)
+    path = get_venv_path() if not os.environ.get("DOCKER_VENV", False) else os.environ.get("DOCKER_VENV", False) 
+    return os.path.join(path, 'bin', ANSIBLE_VAULT)
 
 
 def get_os_images_path():
