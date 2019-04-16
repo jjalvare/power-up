@@ -1643,6 +1643,10 @@ class software(object):
 #                pass
         print('Done')
 
+    def get_software_path(self, tasks_path):
+        tasks_path = f'{self.my_name}_ansible/' + tasks_path
+        return f'{GEN_SOFTWARE_PATH}{tasks_path}'
+
     def _run_ansible_tasks(self, tasks_path, extra_args=''):
         log = logger.getlogger()
         tasks_path = f'{self.my_name}_ansible/' + tasks_path

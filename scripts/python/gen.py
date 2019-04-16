@@ -759,15 +759,28 @@ class Gen(object):
             try:
                 if (self.args.prep is True or self.args.all is True) and self.args.step is not None:
                     try:
-                        soft.prep_init()
-                        for step in self.args.step:
-                            run_this = "create_" + step
-                            if hasattr(soft, run_this):
-                                func = getattr(soft, run_this)
-                                func()
+                        run_this = "run_ansible_task"
+                        import tempfile
+                        run_it_file = ""
+                        for task in self.args.run_ansible_task:
+                            task_file = soft.get_software_path(os.path.basename(task))
+                            if not os.path.isfile(task_file):
+                                print('\nUnable to find: ' + task_file )
                             else:
-                                print('\nUnable to find: ' + step + " in :" + self.args.name)
-                        soft.prep_post()
+                                run_it_file = run_it_file + '''\n- description: Running file {0}\n  tasks: {1}\n'''.format(soft.get_software_path(os.path.basename(task_file)),
+                                                                                os.path.basename(task_file))
+                        if hasattr(soft, run_this) and run_it_file != "":
+                            func = getattr(soft, run_this)
+                            fileobj = tempfile.NamedTemporaryFile()
+                            with open(fileobj.name, 'w') as f:
+                                f.write(run_it_file)
+                                f.seek(0)
+                                func(fileobj.name)
+                        else:
+                            if run_it_file == "":
+                                print('\nUnable to find files to run')
+                            else:
+                                print('\nUnable to find: ' + run_this + " in :" + self.args.name)
                     except AttributeError as exc:
                         print(exc)
                 elif (self.args.prep is True or self.args.all is True) and self.args.step is None:
