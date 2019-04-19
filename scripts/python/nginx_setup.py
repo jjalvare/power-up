@@ -81,7 +81,11 @@ def nginx_setup(root_dir='/srv', repo_id='nginx'):
     resp, err, rc = sub_proc_exec(cmd)
     if rc != 0:
         log.error('Failed to start nginx service')
+    create_nginx_setup(root_dir,True)
 
+    return rc
+
+def create_nginx_setup(root_dir="/srv/",reloadit=False):
     if os.path.isfile('/etc/nginx/conf.d/default.conf'):
         try:
             os.rename('/etc/nginx/conf.d/default.conf',
@@ -94,10 +98,8 @@ def nginx_setup(root_dir='/srv', repo_id='nginx'):
 
     rc = nginx_modify_conf('/etc/nginx/conf.d/server1.conf',
                            directives=nginx_directives,
-                           locations=nginx_location)
-
+                           locations=nginx_location, reload=reloadit)
     return rc
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

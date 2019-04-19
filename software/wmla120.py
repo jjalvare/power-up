@@ -44,7 +44,7 @@ from lib.utilities import sub_proc_display, sub_proc_exec, heading1, Color, \
     parse_rpm_filenames, lscpu
 
 from lib.genesis import GEN_SOFTWARE_PATH, get_ansible_playbook_path, get_playbooks_path, is_container
-from nginx_setup import nginx_setup
+from nginx_setup import nginx_setup, create_nginx_setup 
 
 ENVIRONMENT_VARS = {
     "ANSIBLE_CONFIG": str(get_playbooks_path()) + "/" + "ansible.cfg",  # this probably should be different
@@ -344,7 +344,7 @@ class software(object):
                 continue
 
             # Nginx web server status
-            if item == 'Nginx Web Server':
+            if item == 'Nginx Web Server' and not is_container():
                 temp_dir = 'nginx-test-dir-123'
                 abs_temp_dir = os.path.join(self.root_dir, temp_dir)
                 test_file = 'test-file.abc'
@@ -1311,6 +1311,8 @@ class software(object):
             self._setup_firewall()
         if not is_container():  
             self._setup_nginx_server()
+        #  else:
+            #  create_nginx_setup()
 
     def prep(self, eval_ver=False, non_int=False):
 
