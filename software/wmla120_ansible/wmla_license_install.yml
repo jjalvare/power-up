@@ -19,7 +19,7 @@
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_id }}"
     mode: 0744
-    url: "http://{{ host_ip.stdout }}/wmla-license/{{ file }}"
+    url: "http://9.3.89.131/wmla-license/{{ file }}"
     dest: "{{ ansible_env.HOME }}"
 
 # wmla license acceptance script installs to /opt/anaconda3/bin/

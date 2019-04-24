@@ -15,7 +15,7 @@
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_id }}"
     mode: 0744
-    url: "http://{{ host_ip.stdout }}/spectrum-conductor/{{ file }}"
+    url: "http://9.3.89.131/spectrum-conductor/{{ file }}"
     dest: "{{ ansible_env.HOME }}"
 
 - name: Entitle IBM Spectrum Conductor with Spark

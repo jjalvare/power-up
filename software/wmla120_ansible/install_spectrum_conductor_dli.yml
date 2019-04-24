@@ -15,7 +15,7 @@
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_id }}"
     mode: 0744
-    url: "http://{{ host_ip.stdout }}/spectrum-dli/{{ file }}"
+    url: "http://9.3.89.131/spectrum-dli/{{ file }}"
     dest: "{{ ansible_env.HOME }}"
 
 - name: Include configuration environment variables
