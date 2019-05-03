@@ -14,6 +14,7 @@
   {{ inventory_hostname }}"
   delegate_to: localhost
   register: host_ip
+  when: is_container is not defined
 
                         #YUYM
 - name: Check that the check if YUM post data exists

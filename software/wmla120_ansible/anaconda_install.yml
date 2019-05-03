@@ -13,6 +13,8 @@
   {{ inventory_hostname }}"
   delegate_to: localhost
   register: host_ip
+  when: is_container is not defined
+  
 
 - name: Check if anaconda bin directory already exists
   stat:

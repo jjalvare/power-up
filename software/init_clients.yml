@@ -8,12 +8,13 @@
 - name: Init clients to access the POWER-Up server
   hosts: all
   tasks:
-    # - name: Get route to client
-      # command: "{{ hostvars['localhost']['python_executable_local'] }} \
-      # {{ hostvars['localhost']['scripts_path_local'] }}/python/ip_route_get_to.py \
-      # {{ inventory_hostname }}"
-      # delegate_to: localhost
-      # register: host_ip
+     - name: Get route to client
+       command: "{{ hostvars['localhost']['python_executable_local'] }} \
+        {{ hostvars['localhost']['scripts_path_local'] }}/python/ip_route_get_to.py \
+        {{ inventory_hostname }}"
+       delegate_to: localhost
+       register: host_ip
+       when: is_container is not defined
 
     - name: Add yum repo "{{ item.key }}"
       copy:

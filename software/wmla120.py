@@ -45,12 +45,24 @@ from lib.utilities import sub_proc_display, sub_proc_exec, heading1, Color, \
 
 from lib.genesis import GEN_SOFTWARE_PATH, get_ansible_playbook_path, get_playbooks_path, is_container
 from nginx_setup import nginx_setup, create_nginx_setup 
+ENVIRONMENT_VARS = ""
+if is_container():
+    host_ip = os.environ.get("DOCKER_HOST_IP")
+    host_port = os.environ.get("DOCKER_NGINX_PORT")
+    ENVIRONMENT_VARS = {
+        "ANSIBLE_CONFIG": str(get_playbooks_path()) + "/" + "ansible.cfg",  # this probably should be different
+        "DEFAULT_GATHER_TIMEOUT": "10",
+        "ANSIBLE_GATHER_TIMEOUT": "10",
+        "HOST_PORT": host_port, 
+        "HOST_IP": host_ip,
+    }
 
-ENVIRONMENT_VARS = {
-    "ANSIBLE_CONFIG": str(get_playbooks_path()) + "/" + "ansible.cfg",  # this probably should be different
-    "DEFAULT_GATHER_TIMEOUT": "10",
-    "ANSIBLE_GATHER_TIMEOUT": "10"
-}
+else:
+    ENVIRONMENT_VARS = {
+        "ANSIBLE_CONFIG": str(get_playbooks_path()) + "/" + "ansible.cfg",  # this probably should be different
+        "DEFAULT_GATHER_TIMEOUT": "10",
+        "ANSIBLE_GATHER_TIMEOUT": "10"
+    }
 
 
 class software(object):
@@ -90,6 +102,20 @@ class software(object):
                         'CUDA Driver Repository': 'cuda'}
 
         self._load_pkglist()
+
+        if is_container():
+            self.sw_vars['is_container'] = True
+            self.sw_vars['host_ip'] = {} 
+            self.sw_vars['docker_host_ip'] =  os.environ.get("DOCKER_HOST_IP")
+            self.sw_vars['docker_host_port'] =  os.environ.get("DOCKER_NGINX_PORT",False)
+            if self.sw_vars['docker_host_port']: 
+                self.sw_vars['host_ip']['stdout'] =  self.sw_vars['docker_host_ip']+":"+ self.sw_vars['docker_host_port']
+            else:
+                self.sw_vars['host_ip']['stdout'] =  os.environ.get("DOCKER_HOST_IP")
+        else:
+            del self.sw_vars['host_ip'] 
+            del self.sw_vars['docker_host_ip']
+            del self.sw_vars['docker_host_port']
 
         try:
             self.sw_vars = yaml.load(open(GEN_SOFTWARE_PATH +
@@ -1841,9 +1867,11 @@ def _set_spectrum_conductor_install_env(ansible_inventory, package, ana_ver=None
                                 'configuration? '):
             click.edit(filename=envs_path)
         init = False
-
-    user_name = os.getlogin()
-    if os.getuid() == 0 and user_name != 'root':
+    if not is_container():
+        user_name = os.getlogin()
+    else:
+        user_name = 'root'
+    if ( os.getuid() == 0 and user_name != 'root') or is_container():
         user_uid = pwd.getpwnam(user_name).pw_uid
         user_gid = grp.getgrnam(user_name).gr_gid
         os.chown(envs_path, user_uid, user_gid)

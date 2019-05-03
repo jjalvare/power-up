@@ -13,13 +13,14 @@
   {{ inventory_hostname }}"
   delegate_to: localhost
   register: host_ip
+  when: is_container is not defined
 
 - name: Download license
   get_url:
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_id }}"
     mode: 0744
-    url: "http://9.3.89.131/wmla-license/{{ file }}"
+    url: "http://{{ host_ip.stdout }}/wmla-license/{{ file }}"
     dest: "{{ ansible_env.HOME }}"
 
 # wmla license acceptance script installs to /opt/anaconda3/bin/

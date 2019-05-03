@@ -9,6 +9,7 @@
   {{ inventory_hostname }}"
   delegate_to: localhost
   register: host_ip
+  when: is_container is not defined
 
 - name: Download entitlement file
   get_url:
