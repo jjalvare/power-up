@@ -495,6 +495,9 @@ class software(object):
                 self.state[which] = "Running and configured for http"
             elif 'FirewallD is not running' in err:
                 self.state[which] = Color.yellow + "Not running" + Color.endc
+            else:
+                self.state[which] = "-" 
+
 
             return rc
 
@@ -549,6 +552,7 @@ class software(object):
             if 'success' not in resp:
                 fw_err += 1000
                 self.log.error('Error attempting to restart firewall')
+                self.state['Firewall'] = '-'
 
             self.status_prep(which='Firewall')
             if self.state['Firewall'] == '-':
